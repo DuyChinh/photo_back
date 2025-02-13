@@ -7,7 +7,7 @@ module.exports = {
   getUser: async (req, res) => {
     const response = {};
     try {
-      await User.find()
+      await User.find().select("-password")
         .then((res) => {
           Object.assign(response, {
             status: 200,
@@ -34,7 +34,7 @@ module.exports = {
     const response = {};
     const { id } = req.params;
     try {
-      await User.findOne({ _id: id })
+      await User.findOne({ _id: id }).select("-password")
         .then((res) => {
           Object.assign(response, {
             status: 200,
@@ -87,5 +87,62 @@ module.exports = {
       });
     }
     return res.status(response.status).json(response);
+  },
+
+  updateUser: async (req, res) => {
+    const { id } = req.params;
+    const updateData = req.body;
+  
+    // Validate and convert dob if provided
+    if (updateData.dob) {
+      let parsedDob = new Date(updateData.dob);
+  
+      // If parsing fails and the string contains '/', assume dd/mm/yyyy format
+      if (isNaN(parsedDob.getTime()) && updateData.dob.includes('/')) {
+        const parts = updateData.dob.split('/');
+        if (parts.length === 3) {
+          const formattedDob = `${parts[2]}-${parts[1]}-${parts[0]}`;
+          parsedDob = new Date(formattedDob);
+        }
+      }
+  
+      // If parsing still fails and the string contains '-', assume dd-mm-yyyy format
+      if (isNaN(parsedDob.getTime()) && updateData.dob.includes('-')) {
+        const parts = updateData.dob.split('-');
+        if (parts.length === 3) {
+          const formattedDob = `${parts[2]}-${parts[1]}-${parts[0]}`;
+          parsedDob = new Date(formattedDob);
+        }
+      }
+  
+      if (isNaN(parsedDob.getTime())) {
+        return res.status(400).json({
+          status: 400,
+          message: "Invalid date format for dob",
+        });
+      }
+      updateData.dob = parsedDob;
+    }
+  
+    try {
+      const updatedUser = await User.findByIdAndUpdate(id, updateData, { new: true });
+      if (!updatedUser) {
+        return res.status(404).json({
+          status: 404,
+          message: "User not found",
+        });
+      }
+      return res.status(200).json({
+        status: 200,
+        message: "User updated successfully",
+        data: updatedUser.toObject(),
+      });
+    } catch (error) {
+      return res.status(500).json({
+        status: 500,
+        message: "Server error",
+        error: error.message,
+      });
+    }
   },
 };

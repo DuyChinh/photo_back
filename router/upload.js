@@ -4,6 +4,7 @@ const { Photo } = require("../models/index");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const multer = require("multer");
+const { create } = require("domain");
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     return cb(null, "./public/images");
@@ -25,6 +26,11 @@ router.post("/", upload.single("file"), async (req, res) => {
   const body = {
     user_id: userId,
     img: req.file?.filename,
+    name: "",
+    description: "",
+    share_status: "public",
+    love: [],
+    created_at: new Date(),
   };
   await Photo.create(body)
     .then((res) => {

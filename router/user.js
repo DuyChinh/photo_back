@@ -5,6 +5,7 @@ const authMiddleware = require("../middlewares/auth.middleware");
 
 router.get("/", userController.getUser);
 router.get("/:id", authMiddleware, userController.getUserById);
+router.patch("/:id", authMiddleware, userController.updateUser);
 router.patch("/:username", userController.changePassword);
 
 module.exports = router;

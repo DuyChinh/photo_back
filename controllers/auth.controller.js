@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const saltRounds = 10;
 const { User } = require("../models/index");
 const { Blacklist } = require("../models/index");
+const { log } = require("console");
 require("dotenv").config();
 
 module.exports = {
@@ -13,21 +14,24 @@ module.exports = {
     if (!username || !password) {
       Object.assign(response, {
         status: 400,
-        message: "Bad Request",
+        message: "username or password is required!",
       });
     } else {
-      const user = await User.findOne({ username: username });
+      const users = await User.find();
+      // console.log(users);
+      const user = await User.findOne({ username });
+      // console.log(user);
       if (!user) {
         Object.assign(response, {
           status: 400,
-          message: "Bad Request",
+          message: "username or password is incorrect!",
         });
       } else {
         const result = bcrypt.compareSync(password, user.password);
         if (!result) {
           Object.assign(response, {
             status: 400,
-            message: "Bad Request",
+            message: "username or password is incorrect!",
           });
         } else {
           const { JWT_SECRET, JWT_EXPIRE } = process.env;
@@ -42,6 +46,7 @@ module.exports = {
             status: 200,
             message: "Success",
             access_token: accessToken,
+            userData: user,
           });
         }
       }
@@ -83,35 +88,39 @@ module.exports = {
 
   signup: async (req, res) => {
     const response = {};
-    const { username, password, confirmPassword } = req.body;
-    if (password === confirmPassword) {
-      try {
-        const salt = bcrypt.genSaltSync(saltRounds);
-        const hash = bcrypt.hashSync(password, salt);
-        const user = await User.create({
-          username: username,
-          password: hash,
-          first_name: username,
-          last_name: "",
-          location: "PTIT, VN",
-          description: "I can work anything!",
-          occupation: "Developer",
-        });
-        Object.assign(response, {
-          status: 200,
-          message: "Success",
-          data: user,
-        });
-      } catch {
-        Object.assign(response, {
-          status: 500,
-          message: "Server Error",
-        });
-      }
-    } else {
+    const { username, password, fullname } = req.body;
+    const userExist = await User.findOne({ username });
+    if (userExist) {
       Object.assign(response, {
         status: 400,
-        message: "Password and confirm password is different!",
+        message: "User already exist!",
+      });
+      return res.status(response.status).json(response);
+    }
+    try {
+      const salt = bcrypt.genSaltSync(saltRounds);
+      const hash = bcrypt.hashSync(password, salt);
+      const user = await User.create({
+        username: username,
+        password: hash,
+        fullname: fullname,
+        description: "",
+        dob: "",
+        phone: "",
+        address: "",
+        description: "",
+        follow: [],
+        occupation: "",
+      });
+      Object.assign(response, {
+        status: 200,
+        message: "Success",
+        data: user,
+      });
+    } catch {
+      Object.assign(response, {
+        status: 500,
+        message: "Server Error",
       });
     }
     return res.status(response.status).json(response);

@@ -28,13 +28,13 @@ app.use("/users", userRouter);
 app.use("/photos", photoRouter);
 app.use("/auth", authRouter);
 app.use("/upload", uploadRouter);
-app.use("/comment", commentRouter);
+app.use("/comments", commentRouter);
 app.use("/reply", replyRouter);
 app.get("/", (req, res) => {
   res.send("Hello");
 });
 
-const port = 3000;
+const port = 3001;
 app.listen(port, () =>
   console.log(`server is listening at http://localhost:${port}`),
 );
