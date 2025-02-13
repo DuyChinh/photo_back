@@ -34,7 +34,7 @@ app.get("/", (req, res) => {
   res.send("Hello");
 });
 
-const port = 3001;
-app.listen(port, () =>
-  console.log(`server is listening at http://localhost:${port}`),
-);
+// const port = 3001;
+// app.listen(port, () =>
+//   console.log(`server is listening at http://localhost:${port}`),
+// );
