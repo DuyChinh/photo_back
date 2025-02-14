@@ -4,8 +4,12 @@ require("dotenv").config();
 
 module.exports = async (req, res, next) => {
   const response = {};
-  const token = req.get("Authorization")?.split(" ")[1];
+  // console.log("auth middleware", req.get("Authorization"));
+  
+  const token = req.get("Authorization")?.split(" ")[1];  
   if (!token) {
+    // console.log("401", token);
+    
     Object.assign(response, {
       status: 401,
       message: "Unauthorize",
@@ -19,12 +23,13 @@ module.exports = async (req, res, next) => {
       const { JWT_SECRET } = process.env;
       const { userId, exp } = jwt.verify(token, JWT_SECRET);
       const user = await User.findById(userId);
+      
       if (!user) {
         throw new Error("User not exist");
       }
       req.user = { ...user, accessToken: token, expired: new Date(exp * 1000) };
       return next();
-    } catch {
+    } catch {      
       Object.assign(response, {
         status: 401,
         message: "Unauthorize",

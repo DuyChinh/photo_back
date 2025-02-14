@@ -145,4 +145,43 @@ module.exports = {
       });
     }
   },
+
+  followUser : async (req, res) => {
+    const { followId } = req.params;
+    const currentUserId = req.user && req.user._doc._id;    
+    
+    try {
+      const user = await User.findById(followId);
+      if (!user) {
+        return res.status(404).json({
+          status: 404,
+          message: "User not found",
+        });
+      }
+  
+      let message = "";
+      if (user.follow.includes(currentUserId)) {
+        user.follow = user.follow.filter((id) => id.toString() !== currentUserId.toString());
+        console.log(user.follow);
+        message = "Unfollowed successfully";
+      } else {
+        user.follow.push(currentUserId);
+        message = "Followed successfully";
+      }
+      
+      await user.save();
+      return res.status(200).json({
+        status: 200,
+        message,
+        data: user.toObject(),
+      });
+    } catch (error) {
+      return res.status(500).json({
+        status: 500,
+        message: "Server error",
+        error: error.message,
+      });
+    }
+  },
+
 };

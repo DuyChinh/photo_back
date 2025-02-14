@@ -7,5 +7,6 @@ router.get("/", userController.getUser);
 router.get("/:id", authMiddleware, userController.getUserById);
 router.patch("/:id", authMiddleware, userController.updateUser);
 router.patch("/:username", userController.changePassword);
+router.patch("/follow/:followId", authMiddleware, userController.followUser);
 
 module.exports = router;
