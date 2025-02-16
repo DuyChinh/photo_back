@@ -42,6 +42,7 @@ module.exports = {
       const data = photo.toObject();
       data.fullname = user ? user.fullname : null;
       data.username = user ? user.username : null;
+      data.avatar = user ? user.avatar : null;
       
       return res.status(200).json({
         status: 200,

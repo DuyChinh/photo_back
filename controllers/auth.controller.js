@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const saltRounds = 10;
 const { User } = require("../models/index");
 const { Blacklist } = require("../models/index");
+const { OAuth2Client } = require("google-auth-library");
 require("dotenv").config();
 
 module.exports = {
@@ -50,6 +51,59 @@ module.exports = {
         }
       }
       res.status(response.status).json(response);
+    }
+  },
+
+  googleSignIn: async (req, res) => {
+    const { token } = req.body;
+    if (!token) {
+      return res.status(400).json({
+        status: 400,
+        message: "Token is required",
+      });
+    }
+    try {
+      const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+      const ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+      const payload = ticket.getPayload();
+      const { picture, email, name } = payload;
+  
+      let user = await User.findOne({ username: email });
+      if (!user) {
+        user = await User.create({
+          username: email,
+          password: "",
+          fullname: name,
+          description: "",
+          dob: "",
+          phone: "",
+          address: "",
+          description: "",
+          follow: [],
+          occupation: "",
+          avatar: picture,
+          createtime: new Date(),
+        });
+      }
+  
+      const { JWT_SECRET, JWT_EXPIRE } = process.env;
+      const accessToken = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: JWT_EXPIRE });
+  
+      return res.status(200).json({
+        status: 200,
+        message: "Google sign in successful",
+        accessToken,
+        userData: user.toObject(),
+      });
+    } catch (error) {
+      return res.status(500).json({
+        status: 500,
+        message: "Server error",
+        error: error.message,
+      });
     }
   },
 

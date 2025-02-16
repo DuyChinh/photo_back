@@ -12,6 +12,8 @@ const userSchema = new mongoose.Schema({
   description: String,
   follow: Array,
   occupation: String,
+  avatar: { type: String, default: ""},
+  created_at: { type: Date, default: Date.now },
 });
 const User = mongoose.model("users", userSchema);
 const photoSchema = new mongoose.Schema({
@@ -40,7 +42,8 @@ const commentSchema = new mongoose.Schema({
   username: { type: String, required: true },
   description: { type: String, required: true },
   time: { type: Date, default: Date.now },
-  likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }]
+  likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
+  avatar: { type: String, default: "" },
 });
 
 const Comment = mongoose.model("comments", commentSchema);

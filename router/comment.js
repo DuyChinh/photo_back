@@ -3,7 +3,7 @@ var router = express.Router();
 const { Comment, Photo, Notification, User } = require("../models/index");
 
 router.post("/", async (req, res) => {
-  const { user_post_id, user_id, photo_id, parent_id, fullname, username, description } = req.body;
+  const { user_post_id, user_id, photo_id, parent_id, fullname, username, description, avatar } = req.body;
   const response = {};
 
   try {
@@ -15,7 +15,8 @@ router.post("/", async (req, res) => {
       username,
       description,
       time: new Date(),
-      likes: []
+      likes: [],
+      avatar,
     });
     if(user_id !== user_post_id) {
       Notification.create({ user_id: user_post_id, user_work_id: user_id, title: `Comment photo ${fullname}`, message: `${fullname} has commented on your photo`, read: false, created_at: new Date(), photos: [photo_id] });
