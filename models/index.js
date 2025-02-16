@@ -32,31 +32,10 @@ const blackListSchema = new mongoose.Schema({
 });
 const Blacklist = mongoose.model("blackList", blackListSchema);
 
-// const commentSchema = new mongoose.Schema({
-//   user_id: String,
-//   photo_id: String,
-//   fullname: String,
-//   username: String,
-//   description: String,
-//   time: Date,
-// });
-
-
-// const commentSchema = new mongoose.Schema({
-//   user_id: { type: mongoose.Schema.Types.ObjectId, ref: "users", required: true }, // Người bình luận
-//   photo_id: { type: mongoose.Schema.Types.ObjectId, ref: "photos", required: true }, // Ảnh được bình luận
-//   parent_id: { type: mongoose.Schema.Types.ObjectId, ref: "comments", default: null }, // Bình luận cha (nếu có)
-//   fullname: { type: String, required: true }, // Tên đầy đủ của người bình luận
-//   username: { type: String, required: true }, // Username của người bình luận
-//   description: { type: String, required: true }, // Nội dung bình luận
-//   time: { type: Date, default: Date.now }, // Thời gian bình luận
-//   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }] // Danh sách người đã like
-// });
-
 const commentSchema = new mongoose.Schema({
   user_id: { type: mongoose.Schema.Types.ObjectId, ref: "users", required: true },
   photo_id: { type: mongoose.Schema.Types.ObjectId, ref: "photos", required: true },
-  parent_id: { type: mongoose.Schema.Types.ObjectId, ref: "comments", default: null }, // Trả lời bình luận nào
+  parent_id: { type: mongoose.Schema.Types.ObjectId, ref: "comments", default: null }, 
   fullname: { type: String, required: true },
   username: { type: String, required: true },
   description: { type: String, required: true },
@@ -65,6 +44,18 @@ const commentSchema = new mongoose.Schema({
 });
 
 const Comment = mongoose.model("comments", commentSchema);
+
+const notificationSchema = new mongoose.Schema({
+  user_id: { type: mongoose.Schema.Types.ObjectId, ref: "users", required: true }, 
+  user_work_id: { type: String },
+  title: { type: String, required: true },
+  message: { type: String, required: true }, 
+  read: { type: Boolean, default: false }, 
+  created_at: { type: Date, default: Date.now }, 
+  photos: { type: Array }, 
+});
+
+const Notification = mongoose.model("notifications", notificationSchema);
 
 const replyCommentSchema = new mongoose.Schema({
   user_id: String,
@@ -76,4 +67,4 @@ const replyCommentSchema = new mongoose.Schema({
 
 const Replycomment = mongoose.model("replyComment", replyCommentSchema);
 
-module.exports = { User, Photo, Blacklist, Comment, Replycomment };
+module.exports = { User, Photo, Blacklist, Comment, Replycomment, Notification };

@@ -1,6 +1,6 @@
 var express = require("express");
 var router = express.Router();
-const { Photo } = require("../models/index");
+const { Photo, Notification, User } = require("../models/index");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const multer = require("multer");
@@ -57,6 +57,11 @@ router.post("/", upload.array("files", 10), async (req, res) => {
       })
     );
 
+    const user = await User.findById(userId);
+    user.follow.forEach((followerId) => {
+      Notification.create({ user_id: followerId, user_work_id: user._id,title: `upload　${user.fullname}`, message: `${user.fullname} has uploaded ${uploadedPhotos.length} new ${uploadedPhotos.length > 1 ? 'photo' : 'photos'}`, read: false, created_at: new Date(), photos: uploadedPhotos });
+    });
+
     return res.status(200).json({
       status: 200,
       message: "Upload Success",
@@ -66,7 +71,6 @@ router.post("/", upload.array("files", 10), async (req, res) => {
       })),
     });
   } catch (error) {
-    // console.error("Upload error:", error);
     return res.status(500).json({ status: 500, message: "Upload failed! Server Error!" });
   }
 });

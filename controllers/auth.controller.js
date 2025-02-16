@@ -3,7 +3,6 @@ const bcrypt = require("bcrypt");
 const saltRounds = 10;
 const { User } = require("../models/index");
 const { Blacklist } = require("../models/index");
-const { log } = require("console");
 require("dotenv").config();
 
 module.exports = {
@@ -139,5 +138,37 @@ module.exports = {
       status: 200,
       message: "Success",
     });
+  },
+
+  changePassword: async (req, res) => {
+    const response = {};
+    const { username } = req.params;
+    const { password } = req.body;
+    const user = await User.findOne({ username: username });
+    if (!user) {
+      return res.status(404).json({
+        status: 404,
+        message: "Username not exist!",
+      });
+    }
+    try {
+      const salt = bcrypt.genSaltSync(saltRounds);
+      const hash = bcrypt.hashSync(password, salt);
+      const user = await User.updateOne(
+        { username: username },
+        { password: hash },
+      );
+      Object.assign(response, {
+        status: 200,
+        message: "Succees",
+        data: user,
+      });
+    } catch {
+      Object.assign(response, {
+        status: 500,
+        message: "Server Error",
+      });
+    }
+    return res.status(response.status).json(response);
   },
 };

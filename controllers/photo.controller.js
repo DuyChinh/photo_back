@@ -1,11 +1,11 @@
-const { Photo, User } = require("../models/index");
+const { Photo, User, Notification } = require("../models/index");
 //https://n54969-2102.csb.app/photos?userId=66359ec0efa3ce66748f5fbd
 module.exports = {
   getPhotoByUserId: async (req, res) => {
     const response = {};
     const { userId } = req.query;
     try {
-      await Photo.find({ user_id: userId })
+      await Photo.find({ user_id: userId }).sort({ created_at: -1 })
         .then((res) => {
           Object.assign(response, {
             status: 200,
@@ -148,8 +148,13 @@ module.exports = {
         photo.love = photo.love.filter(loveId => loveId !== userId);
       } else {
         photo.love.push(userId);
+        const user = await User.findById(userId);
+        if(userId !== photo.user_id) {
+          Notification.create({ user_id: photo.user_id, user_work_id: userId, title: `Love photo ${user.fullname}`, message: `${user.fullname} has loved your photo ${photo.name ? `which is named ${photo.name}`: ""}`, read: false, created_at: new Date(), photos: [photo] });
+        }
       }
       await photo.save();
+
       return res.status(200).json({
         status: 200,
         message: "Love updated successfully",

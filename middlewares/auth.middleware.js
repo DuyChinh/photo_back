@@ -7,9 +7,7 @@ module.exports = async (req, res, next) => {
   // console.log("auth middleware", req.get("Authorization"));
   
   const token = req.get("Authorization")?.split(" ")[1];  
-  if (!token) {
-    // console.log("401", token);
-    
+  if (!token) {   
     Object.assign(response, {
       status: 401,
       message: "Unauthorize",

@@ -7,8 +7,10 @@ const authRouter = require("./router/auth");
 const uploadRouter = require("./router/upload");
 const commentRouter = require("./router/comment");
 const replyRouter = require("./router/reply");
+const notificationRouter = require("./router/notification");
 require("dotenv").config();
 const multer = require("multer");
+
 
 const app = express();
 
@@ -30,6 +32,7 @@ app.use("/auth", authRouter);
 app.use("/upload", uploadRouter);
 app.use("/comments", commentRouter);
 app.use("/reply", replyRouter);
+app.use("/notifications", notificationRouter);
 app.get("/", (req, res) => {
   res.send("Hello");
 });
